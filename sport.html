@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f8f7f4">
+<title>Ma Fiche Sport</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f7f4;
+    color: #2d2d2d;
+    line-height: 1.6;
+    padding: 16px;
+    max-width: 520px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: contain;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  img.emoji {
+    height: 1em;
+    width: 1em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+    display: inline-block;
+  }
+  .emoji img.emoji, .mode-emoji img.emoji, .toggle-icon img.emoji {
+    height: 1em;
+    width: 1em;
+  }
+
+  .header { text-align: center; padding: 24px 0 8px; }
+  .header h1 { font-size: 24px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+  .header p { font-size: 14px; color: #888; margin-top: 6px; }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+    color: #2d6a4f; text-align: center; margin: 32px 0 16px; position: relative;
+  }
+  .section-title::before, .section-title::after {
+    content: ''; position: absolute; top: 50%; width: 30px; height: 1px; background: #ddd;
+  }
+  .section-title::before { right: calc(50% + 70px); }
+  .section-title::after { left: calc(50% + 70px); }
+
+  /* DECISION CARDS */
+  .decision-card {
+    background: #fff; border-radius: 16px; padding: 22px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); text-align: center;
+  }
+  .decision-card .question { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; }
+  .decision-options { display: flex; gap: 10px; }
+  .decision-btn {
+    flex: 1; padding: 16px 10px; border: 2.5px solid #e8e6e1; border-radius: 14px;
+    background: #fafaf8; cursor: pointer; transition: all 0.25s ease; text-align: center;
+  }
+  .decision-btn:hover { border-color: #ccc; transform: translateY(-1px); }
+  .decision-btn.selected { border-color: #2d6a4f; background: #e8f5e9; transform: scale(1.02); }
+  .decision-btn .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+  .decision-btn .label { font-size: 14px; font-weight: 700; color: #333; display: block; }
+  .decision-btn .sublabel { font-size: 11px; color: #999; display: block; margin-top: 4px; line-height: 1.4; }
+
+  .arrow { text-align: center; font-size: 22px; color: #ccc; padding: 6px 0; }
+
+  /* RESULT CARD */
+  .result-card {
+    background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%); border-radius: 16px;
+    padding: 26px; color: #fff; text-align: center; margin: 16px 0;
+    display: none; animation: fadeIn 0.3s ease; box-shadow: 0 4px 15px rgba(45,106,79,0.3);
+  }
+  .result-card.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .result-card .mode-name { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .result-card .mode-detail { font-size: 14px; opacity: 0.9; margin-bottom: 6px; line-height: 1.5; }
+  .result-card .mode-machines { font-size: 13px; opacity: 0.8; margin-bottom: 14px; line-height: 1.5; }
+  .result-card .mode-badge {
+    display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px;
+    border-radius: 20px; font-size: 14px; font-weight: 700;
+  }
+  .result-card .rest-reminder {
+    margin-top: 12px; font-size: 12px; opacity: 0.8;
+    background: rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 10px;
+  }
+
+  /* STRUCTURE CARD */
+  .structure-card {
+    background: #fff; border-radius: 16px; padding: 24px; margin: 16px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+  }
+  .structure-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1a1a1a; }
+  .step-row { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f0efeb; }
+  .step-row:last-child { border-bottom: none; }
+  .step-time {
+    font-size: 12px; font-weight: 700; color: #2d6a4f; background: #e8f5e9;
+    padding: 4px 10px; border-radius: 8px; white-space: nowrap; min-width: 65px;
+    text-align: center; flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { font-size: 14px; color: #1a1a1a; display: block; margin-bottom: 2px; }
+  .step-content span { font-size: 13px; color: #777; line-height: 1.5; }
+
+  .explainer {
+    background: #f0efeb; border-radius: 12px; padding: 14px 16px; margin: 12px 0;
+    font-size: 13px; color: #666; line-height: 1.6;
+  }
+  .explainer strong { color: #444; }
+
+  /* MODE COMPARISON */
+  .modes-compare { display: flex; gap: 12px; margin: 16px 0; }
+  .mode-col {
+    flex: 1; background: #fff; border-radius: 14px; padding: 20px 14px; text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+  }
+  .mode-col .mode-emoji { font-size: 30px; margin-bottom: 8px; }
+  .mode-col .mode-name { font-size: 16px; font-weight: 800; color: #1a1a1a; }
+  .mode-col .mode-reps { font-size: 26px; font-weight: 800; color: #2d6a4f; margin: 8px 0; }
+  .mode-col .mode-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .mode-col .mode-rest { font-size: 11px; color: #555; margin-top: 6px; font-weight: 600; }
+  .mode-col .mode-best {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 10px; padding: 4px 10px; border-radius: 8px; display: inline-block;
+  }
+  .force-best { background: #ede7f6; color: #7b1fa2; }
+  .tonus-best { background: #fff3e0; color: #e65100; }
+
+  /* MACHINE CARD */
+  .machine-card {
+    background: #fff; border-radius: 16px; padding: 18px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+  }
+  .machine-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .machine-illustration {
+    width: 66px; height: 66px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .machine-illustration svg { width: 56px; height: 56px; }
+  .machine-info h3 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+  .machine-info .zones {
+    font-size: 11px; font-weight: 600; color: #2d6a4f; background: #e8f5e9;
+    padding: 2px 8px; border-radius: 6px; display: inline-block;
+  }
+  .machine-details { background: #fafaf8; border-radius: 12px; padding: 12px; }
+  .detail-row {
+    display: flex; align-items: flex-start; gap: 8px; padding: 4px 0;
+    font-size: 13px; color: #555;
+  }
+  .detail-row .icon { font-size: 14px; flex-shrink: 0; width: 20px; text-align: center; }
+  .detail-row strong { color: #333; }
+
+  /* COLLAPSIBLE */
+  .collapse-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff; border-radius: 14px; padding: 16px 20px; margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .collapse-toggle:active { transform: scale(0.98); }
+  .collapse-toggle .toggle-left { display: flex; align-items: center; gap: 12px; }
+  .collapse-toggle .toggle-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .collapse-toggle .toggle-title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .collapse-toggle .toggle-sub { font-size: 11px; color: #999; }
+  .collapse-toggle .chevron {
+    font-size: 18px; color: #ccc; transition: transform 0.3s;
+  }
+  .collapse-toggle.open .chevron { transform: rotate(180deg); }
+  .collapse-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+  }
+  .collapse-content.open { max-height: 5000px; }
+
+  /* STRETCH CARD */
+  .stretch-card {
+    background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.04);
+  }
+  .stretch-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .stretch-illust {
+    width: 56px; height: 56px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .stretch-illust svg { width: 46px; height: 46px; }
+  .stretch-info h4 { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .stretch-info .target { font-size: 11px; color: #888; }
+  .stretch-time-badge {
+    font-size: 11px; font-weight: 700; color: #e65100; background: #fff3e0;
+    padding: 2px 8px; border-radius: 6px; display: inline-block; margin-top: 3px;
+  }
+  .stretch-steps { background: #fafaf8; border-radius: 10px; padding: 10px 12px; }
+  .stretch-step {
+    display: flex; align-items: flex-start; gap: 8px; padding: 3px 0;
+    font-size: 12px; color: #555; line-height: 1.5;
+  }
+  .snum {
+    width: 18px; height: 18px; border-radius: 5px; background: #e8f5e9; color: #2d6a4f;
+    font-size: 10px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* REST SUMMARY */
+  .rest-card {
+    background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+  }
+  .rest-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .rest-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid #f0efeb;
+  }
+  .rest-row:last-child { border-bottom: none; }
+  .rest-label { font-size: 13px; color: #444; font-weight: 500; }
+  .rest-value {
+    font-size: 13px; font-weight: 700; color: #2d6a4f; background: #e8f5e9;
+    padding: 3px 10px; border-radius: 8px;
+  }
+  .rest-value.orange { color: #e65100; background: #fff3e0; }
+
+  /* RULES */
+  .rule-card {
+    background: #fff; border-radius: 14px; padding: 18px 20px; margin-bottom: 10px;
+    display: flex; align-items: flex-start; gap: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+  }
+  .rule-number {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; flex-shrink: 0; color: #fff; background: #2d6a4f;
+  }
+  .rule-content { flex: 1; }
+  .rule-content strong { font-size: 15px; display: block; margin-bottom: 4px; color: #1a1a1a; }
+  .rule-content span { font-size: 13px; color: #666; line-height: 1.6; }
+
+  /* BONUS */
+  .bonus-card {
+    background: linear-gradient(135deg, #fefefe, #f9f8f5);
+    border: 1.5px dashed #ddd; border-radius: 16px; padding: 22px; margin: 16px 0;
+  }
+  .bonus-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .bonus-item {
+    font-size: 14px; color: #555; padding: 5px 0 5px 22px; position: relative;
+  }
+  .bonus-item::before { content: '~'; position: absolute; left: 0; color: #2d6a4f; font-weight: 700; }
+
+  .footer { text-align: center; padding: 24px 0; font-size: 11px; color: #bbb; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a1a; color: #e0e0e0; }
+    .decision-card, .machine-card, .stretch-card, .rest-card, .rule-card,
+    .structure-card, .mode-col, .collapse-toggle { background: #242424; border-color: #333; }
+    .machine-details, .stretch-steps, .explainer { background: #2a2a2a; }
+    .machine-info h3, .stretch-info h4, .rest-card h3, .rule-content strong,
+    .structure-card h3, .mode-col .mode-name, .step-content strong,
+    .decision-card .question, .collapse-toggle .toggle-title { color: #f0f0f0; }
+    .decision-btn { background: #2a2a2a; border-color: #444; }
+    .decision-btn.selected { background: #1a3a2a; border-color: #2d6a4f; }
+    .decision-btn .label { color: #ddd; }
+    .detail-row, .stretch-step, .step-content span, .rule-content span { color: #aaa; }
+    .detail-row strong { color: #ddd; }
+    .rest-row { border-color: #333; }
+    .section-title { color: #40916c; }
+    .section-title::before, .section-title::after { background: #444; }
+    .bonus-card { background: #222; border-color: #444; }
+    .collapse-content .machine-card { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Ma Fiche Sport</h1>
+  <p>Tout au meme endroit. Choisis en arrivant.</p>
+</div>
+
+<!-- ======== DECISION FLOW ======== -->
+<div class="section-title">En arrivant</div>
+
+<div class="decision-card">
+  <div class="question">Je cible quoi aujourd'hui ?</div>
+  <div class="decision-options">
+    <div class="decision-btn" onclick="selectZone('haut')" id="zone-haut">
+      <span class="emoji">💪</span>
+      <span class="label">Haut du corps</span>
+      <span class="sublabel">Poitrine, dos, epaules, bras</span>
+    </div>
+    <div class="decision-btn" onclick="selectZone('bas')" id="zone-bas">
+      <span class="emoji">🦵</span>
+      <span class="label">Bas du corps</span>
+      <span class="sublabel">Jambes, fessiers, cuisses</span>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">↓</div>
+
+<div class="decision-card">
+  <div class="question">Comment je me sens ?</div>
+  <div class="decision-options">
+    <div class="decision-btn" onclick="selectMode('force')" id="mode-force">
+      <span class="emoji">🔥</span>
+      <span class="label">Forte</span>
+      <span class="sublabel">Pleine d'energie, envie de pousser lourd</span>
+    </div>
+    <div class="decision-btn" onclick="selectMode('tonus')" id="mode-tonus">
+      <span class="emoji">🌊</span>
+      <span class="label">Tranquille</span>
+      <span class="sublabel">Moins d'energie, envie de flow rapide</span>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-card" id="result">
+  <div class="mode-name" id="result-title">—</div>
+  <div class="mode-detail" id="result-detail">—</div>
+  <div class="mode-machines" id="result-machines">—</div>
+  <div class="mode-badge" id="result-badge">—</div>
+  <div class="rest-reminder" id="result-rest">—</div>
+</div>
+
+
+<!-- ======== STRUCTURE ======== -->
+<div class="section-title">Ta seance</div>
+
+<div class="structure-card">
+  <h3>Comment ca se passe</h3>
+  <div class="step-row">
+    <span class="step-time">5-10 min</span>
+    <div class="step-content">
+      <strong>Echauffement</strong>
+      <span>Velo, escalier, elliptique... ce que tu veux.</span>
+    </div>
+  </div>
+  <div class="step-row">
+    <span class="step-time">25-35 min</span>
+    <div class="step-content">
+      <strong>Circuit Biocircuit</strong>
+      <span>Fais toutes les machines une fois = 1 tour. Recommence = 2 tours. 1 tour suffit si peu de temps.</span>
+    </div>
+  </div>
+  <div class="step-row">
+    <span class="step-time">5-10 min</span>
+    <div class="step-content">
+      <strong>Abdos / core</strong>
+      <span>Gainage, lombaires, abdos. Optionnel, faisable tous les jours.</span>
+    </div>
+  </div>
+  <div class="step-row">
+    <span class="step-time">5 min</span>
+    <div class="step-content">
+      <strong>Etirements</strong>
+      <span>5 etirements de 30 sec = 5 min. Voir la section plus bas.</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ======== MODES ======== -->
+<div class="section-title">Les 2 modes</div>
+
+<div class="modes-compare">
+  <div class="mode-col">
+    <div class="mode-emoji">🔥</div>
+    <div class="mode-name">Force</div>
+    <div class="mode-reps">3 x 8</div>
+    <div class="mode-info">Charge plus lourde<br>Mouvement lent et controle</div>
+    <div class="mode-rest">Repos : 60-90 sec entre series</div>
+    <div class="mode-best force-best">Construit le muscle</div>
+  </div>
+  <div class="mode-col">
+    <div class="mode-emoji">🌊</div>
+    <div class="mode-name">Tonus</div>
+    <div class="mode-reps">3 x 15</div>
+    <div class="mode-info">Charge legere<br>Enchainement rapide</div>
+    <div class="mode-rest">Repos : 30-45 sec entre series</div>
+    <div class="mode-best tonus-best">Endurance + cardio</div>
+  </div>
+</div>
+
+<div class="rest-card">
+  <h3>Temps de repos</h3>
+  <div class="rest-row">
+    <span class="rest-label">Entre 2 series (Force)</span>
+    <span class="rest-value">60-90 sec</span>
+  </div>
+  <div class="rest-row">
+    <span class="rest-label">Entre 2 series (Tonus)</span>
+    <span class="rest-value orange">30-45 sec</span>
+  </div>
+  <div class="rest-row">
+    <span class="rest-label">Entre 2 machines</span>
+    <span class="rest-value">30-60 sec</span>
+  </div>
+  <div class="rest-row">
+    <span class="rest-label">Entre tour 1 et tour 2</span>
+    <span class="rest-value">2-3 min</span>
+  </div>
+</div>
+
+<div class="explainer">
+  <strong>Tu peux mixer</strong> : commencer en Force sur 2-3 machines et finir en Tonus. Pas de mauvais choix.
+</div>
+
+
+<!-- ======== MACHINES HAUT ======== -->
+<div class="section-title">Les machines</div>
+
+<!-- COLLAPSIBLE: HAUT DU CORPS -->
+<div class="collapse-toggle" onclick="toggleCollapse('machines-haut')">
+  <div class="toggle-left">
+    <div class="toggle-icon" style="background:#e3f2fd;">💪</div>
+    <div>
+      <div class="toggle-title">Machines haut du corps</div>
+      <div class="toggle-sub">Chest Press, Overhead Press, High Pull, Low Pull, Core</div>
+    </div>
+  </div>
+  <span class="chevron">▼</span>
+</div>
+<div class="collapse-content" id="machines-haut">
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#e3f2fd;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="20" r="8" fill="none" stroke="#1565c0" stroke-width="3"/><line x1="50" y1="28" x2="50" y2="58" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="38" x2="30" y2="42" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="42" x2="18" y2="35" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="38" x2="70" y2="42" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="70" y1="42" x2="82" y2="35" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="82" y1="35" x2="92" y2="30" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="92,26 96,32 89,32" fill="#e53935"/><line x1="18" y1="35" x2="8" y2="30" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="8,26 4,32 11,32" fill="#e53935"/><line x1="50" y1="58" x2="38" y2="75" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="58" x2="62" y2="75" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="35" y1="58" x2="65" y2="58" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#1565c0" font-weight="bold">POUSSER AVANT</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Chest Press</h3>
+        <span class="zones">Poitrine + triceps</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise, dos cale contre le dossier</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Pousse les poignees vers l'avant, a hauteur de poitrine</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Ne tends pas les bras completement. Lent et controle.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#f3e5f5;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="25" r="8" fill="none" stroke="#7b1fa2" stroke-width="3"/><line x1="50" y1="33" x2="50" y2="63" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="40" x2="35" y2="32" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="35" y1="32" x2="30" y2="15" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="40" x2="65" y2="32" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="65" y1="32" x2="70" y2="15" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="15" x2="28" y2="6" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="28,2 24,9 32,9" fill="#e53935"/><line x1="70" y1="15" x2="72" y2="6" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="72,2 68,9 76,9" fill="#e53935"/><line x1="50" y1="63" x2="40" y2="80" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="63" x2="60" y2="80" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="63" x2="63" y2="63" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#7b1fa2" font-weight="bold">POUSSER EN HAUT</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Overhead Press</h3>
+        <span class="zones">Epaules</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise droite, poignees a hauteur des oreilles</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Pousse au-dessus de la tete</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Stop si tension dans l'epaule. Mieux vaut propre que trop.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#e8f5e9;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="25" r="8" fill="none" stroke="#2e7d32" stroke-width="3"/><line x1="50" y1="33" x2="50" y2="63" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="40" x2="30" y2="35" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="35" x2="20" y2="45" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="40" x2="70" y2="35" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="70" y1="35" x2="80" y2="45" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="20" y1="45" x2="30" y2="42" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="33,40 27,37 27,46" fill="#e53935"/><line x1="80" y1="45" x2="70" y2="42" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="67,40 73,37 73,46" fill="#e53935"/><line x1="50" y1="63" x2="40" y2="80" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="63" x2="60" y2="80" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="63" x2="63" y2="63" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#2e7d32" font-weight="bold">TIRER VERS SOI</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>High Pull</h3>
+        <span class="zones">Haut du dos + trapezes</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise, bras ouverts largeur epaules</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Tire vers le haut de ta poitrine, coudes a 90°</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Epaules basses. Controle le retour.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#fff3e0;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="25" r="8" fill="none" stroke="#e65100" stroke-width="3"/><line x1="50" y1="33" x2="50" y2="63" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="45" x2="35" y2="48" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="35" y1="48" x2="25" y2="55" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="45" x2="65" y2="48" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="65" y1="48" x2="75" y2="55" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="25" y1="55" x2="35" y2="52" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="38,50 32,47 32,56" fill="#e53935"/><line x1="75" y1="55" x2="65" y2="52" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="62,50 68,47 68,56" fill="#e53935"/><line x1="50" y1="63" x2="40" y2="80" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="63" x2="60" y2="80" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="63" x2="63" y2="63" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#e65100" font-weight="bold">TIRER BAS</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Low Pull</h3>
+        <span class="zones">Milieu du dos + biceps</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise, bras serres pres du corps</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Tire vers ton nombril, coudes colles au corps</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Dos droit, ne cambre pas. Serre les omoplates.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#fce4ec;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="22" r="8" fill="none" stroke="#c62828" stroke-width="3"/><line x1="50" y1="30" x2="50" y2="60" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="40" x2="30" y2="40" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="40" x2="70" y2="40" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><path d="M 30 55 A 25 25 0 0 1 70 55" fill="none" stroke="#e53935" stroke-width="2" stroke-dasharray="4,3"/><polygon points="70,55 74,49 66,50" fill="#e53935"/><polygon points="30,55 26,49 34,50" fill="#e53935"/><line x1="50" y1="60" x2="40" y2="77" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="60" x2="60" y2="77" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="60" x2="63" y2="60" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#c62828" font-weight="bold">ROTATION</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Core Rotation</h3>
+        <span class="zones">Abdos + obliques</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise, bien calee, mains sur les poignees</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Tourne le buste d'un cote puis l'autre, lentement</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Ne force pas sur la nuque. Souffle en tournant.</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COLLAPSIBLE: BAS DU CORPS -->
+<div class="collapse-toggle" onclick="toggleCollapse('machines-bas')">
+  <div class="toggle-left">
+    <div class="toggle-icon" style="background:#fce4ec;">🦵</div>
+    <div>
+      <div class="toggle-title">Machines bas du corps</div>
+      <div class="toggle-sub">Leg Press, Abducteurs, Adducteurs, Leg Curl, Leg Extension</div>
+    </div>
+  </div>
+  <span class="chevron">▼</span>
+</div>
+<div class="collapse-content" id="machines-bas">
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#e8f5e9;">
+        <svg viewBox="0 0 100 100"><circle cx="25" cy="30" r="7" fill="none" stroke="#2e7d32" stroke-width="3"/><line x1="30" y1="35" x2="40" y2="55" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="40" y1="55" x2="55" y2="42" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><line x1="55" y1="42" x2="70" y2="50" stroke="#2e7d32" stroke-width="3" stroke-linecap="round"/><rect x="68" y="38" width="6" height="24" rx="2" fill="#90a4ae"/><line x1="74" y1="50" x2="85" y2="50" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="88,50 82,46 82,54" fill="#e53935"/><line x1="20" y1="42" x2="42" y2="60" stroke="#90a4ae" stroke-width="2"/><text x="50" y="85" text-anchor="middle" font-size="9" fill="#2e7d32" font-weight="bold">POUSSER JAMBES</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Leg Press</h3>
+        <span class="zones">Quadriceps + fessiers</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise/inclinee, pieds a plat, largeur hanches</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Pousse la plateforme par les talons</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Ne verrouille jamais les genoux. Descends a 90° max.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#fce4ec;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="20" r="7" fill="none" stroke="#c62828" stroke-width="3"/><line x1="50" y1="27" x2="50" y2="50" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="50" x2="25" y2="75" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="50" x2="75" y2="75" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="25" y1="60" x2="15" y2="55" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="12,53 16,60 19,52" fill="#e53935"/><line x1="75" y1="60" x2="85" y2="55" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="88,53 84,60 81,52" fill="#e53935"/><line x1="37" y1="50" x2="63" y2="50" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#c62828" font-weight="bold">OUVRIR</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Abducteurs</h3>
+        <span class="zones">Exterieur cuisses + fessiers</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise droite, dos colle, jambes contre les coussins</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Ouvre les jambes vers l'exterieur, lentement</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Controle le retour. Ne claque pas les coussins.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#f3e5f5;">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="20" r="7" fill="none" stroke="#7b1fa2" stroke-width="3"/><line x1="50" y1="27" x2="50" y2="50" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="50" x2="25" y2="75" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="50" x2="75" y2="75" stroke="#7b1fa2" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="60" x2="40" y2="55" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="43,53 37,50 37,59" fill="#e53935"/><line x1="70" y1="60" x2="60" y2="55" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="57,53 63,50 63,59" fill="#e53935"/><line x1="37" y1="50" x2="63" y2="50" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#7b1fa2" font-weight="bold">FERMER</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Adducteurs</h3>
+        <span class="zones">Interieur cuisses</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise, dos colle, jambes ouvertes sur les coussins</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Ferme les jambes vers l'interieur, en serrant</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Mouvement controle et lent, pas de a-coups.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#fff3e0;">
+        <svg viewBox="0 0 100 100"><circle cx="30" cy="22" r="7" fill="none" stroke="#e65100" stroke-width="3"/><line x1="30" y1="29" x2="30" y2="55" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="55" x2="65" y2="55" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><line x1="65" y1="55" x2="55" y2="75" stroke="#e65100" stroke-width="3" stroke-linecap="round"/><path d="M 65 50 A 15 15 0 0 1 55 70" fill="none" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="53,72 58,68 51,66" fill="#e53935"/><line x1="20" y1="55" x2="40" y2="55" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#e65100" font-weight="bold">PLIER ARRIERE</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Leg Curl</h3>
+        <span class="zones">Arriere cuisses (ischios)</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise/allongee, coussin derriere les chevilles</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Plie les jambes vers l'arriere (talon vers fesse)</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Fesses collees au siege. Mouvement controle.</span></div>
+    </div>
+  </div>
+
+  <div class="machine-card">
+    <div class="machine-card-header">
+      <div class="machine-illustration" style="background:#e3f2fd;">
+        <svg viewBox="0 0 100 100"><circle cx="30" cy="22" r="7" fill="none" stroke="#1565c0" stroke-width="3"/><line x1="30" y1="29" x2="30" y2="55" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="55" x2="45" y2="72" stroke="#1565c0" stroke-width="3" stroke-linecap="round" opacity="0.3"/><line x1="30" y1="55" x2="70" y2="55" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/><path d="M 50 72 A 20 20 0 0 1 68 55" fill="none" stroke="#e53935" stroke-width="2" stroke-dasharray="3,3"/><polygon points="70,53 66,60 72,58" fill="#e53935"/><line x1="20" y1="55" x2="40" y2="55" stroke="#90a4ae" stroke-width="2"/><text x="50" y="95" text-anchor="middle" font-size="9" fill="#1565c0" font-weight="bold">TENDRE AVANT</text></svg>
+      </div>
+      <div class="machine-info">
+        <h3>Leg Extension</h3>
+        <span class="zones">Avant cuisses (quadriceps)</span>
+      </div>
+    </div>
+    <div class="machine-details">
+      <div class="detail-row"><span class="icon">🪑</span><span><strong>Position :</strong> Assise, dos cale, coussin devant les chevilles</span></div>
+      <div class="detail-row"><span class="icon">🎯</span><span><strong>Mouvement :</strong> Tends les jambes vers l'avant (pieds montent)</span></div>
+      <div class="detail-row"><span class="icon">⚠️</span><span><strong>Attention :</strong> Monte lentement, redescends encore plus lentement.</span></div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ======== ETIREMENTS ======== -->
+<div class="section-title">Etirements</div>
+
+<!-- ETIREMENTS HAUT -->
+<div class="collapse-toggle" onclick="toggleCollapse('stretch-haut')">
+  <div class="toggle-left">
+    <div class="toggle-icon" style="background:#e3f2fd;">🙆</div>
+    <div>
+      <div class="toggle-title">Etirements haut du corps</div>
+      <div class="toggle-sub">5 etirements x 30 sec = ~5 min</div>
+    </div>
+  </div>
+  <span class="chevron">▼</span>
+</div>
+<div class="collapse-content" id="stretch-haut">
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#e3f2fd;">
+        <svg viewBox="0 0 80 80"><circle cx="40" cy="18" r="7" fill="none" stroke="#1565c0" stroke-width="2.5"/><line x1="40" y1="25" x2="40" y2="52" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="18" x2="52" y2="12" stroke="#e53935" stroke-width="2" stroke-dasharray="2,2"/><line x1="40" y1="34" x2="55" y2="28" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="55" y1="28" x2="48" y2="14" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="34" x2="25" y2="42" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="52" x2="32" y2="68" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="52" x2="48" y2="68" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Trapezes (cou)</h4>
+        <div class="target">Cote du cou et haut des epaules</div>
+        <span class="stretch-time-badge">30 sec par cote</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Penche la tete vers la droite, oreille vers l'epaule</div>
+      <div class="stretch-step"><span class="snum">2</span> Pose ta main droite sur ta tete pour appuyer legerement</div>
+      <div class="stretch-step"><span class="snum">3</span> Tiens 30 sec, respire, puis change de cote</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#f3e5f5;">
+        <svg viewBox="0 0 80 80"><circle cx="40" cy="18" r="7" fill="none" stroke="#7b1fa2" stroke-width="2.5"/><line x1="40" y1="25" x2="40" y2="52" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="34" x2="22" y2="34" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="40" x2="28" y2="38" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="28" y1="38" x2="26" y2="30" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="52" x2="32" y2="68" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="52" x2="48" y2="68" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Epaules</h4>
+        <div class="target">Arriere de l'epaule</div>
+        <span class="stretch-time-badge">30 sec par bras</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Bras droit tendu devant toi, horizontalement</div>
+      <div class="stretch-step"><span class="snum">2</span> Main gauche tire le bras contre ta poitrine</div>
+      <div class="stretch-step"><span class="snum">3</span> Tiens 30 sec puis change de bras</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#e8f5e9;">
+        <svg viewBox="0 0 80 80"><circle cx="50" cy="18" r="7" fill="none" stroke="#2e7d32" stroke-width="2.5"/><line x1="50" y1="25" x2="50" y2="52" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="34" x2="30" y2="20" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="34" x2="60" y2="42" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="28" y1="10" x2="28" y2="55" stroke="#90a4ae" stroke-width="3"/><path d="M 55 28 A 12 12 0 0 1 55 42" fill="none" stroke="#e53935" stroke-width="2" stroke-dasharray="2,2"/><line x1="50" y1="52" x2="42" y2="68" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="52" x2="58" y2="68" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Pectoraux (poitrine)</h4>
+        <div class="target">Poitrine et avant de l'epaule</div>
+        <span class="stretch-time-badge">30 sec par cote</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Main droite sur un mur, bras a 90°</div>
+      <div class="stretch-step"><span class="snum">2</span> Tourne le corps vers la gauche pour ouvrir la poitrine</div>
+      <div class="stretch-step"><span class="snum">3</span> Tiens 30 sec, change de cote</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#fff3e0;">
+        <svg viewBox="0 0 80 80"><circle cx="58" cy="32" r="6" fill="none" stroke="#e65100" stroke-width="2.5"/><path d="M 52 32 Q 40 28 35 40" fill="none" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="55" y1="35" x2="68" y2="28" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="68" y1="28" x2="72" y2="24" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="35" y1="40" x2="28" y2="50" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="28" y1="50" x2="35" y2="55" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="15" y1="56" x2="75" y2="56" stroke="#90a4ae" stroke-width="1"/><text x="40" y="72" text-anchor="middle" font-size="8" fill="#e65100" font-weight="600">Posture de l'enfant</text></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Dos complet</h4>
+        <div class="target">Tout le dos et lombaires</div>
+        <span class="stretch-time-badge">30 sec</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> A genoux, assieds-toi sur tes talons</div>
+      <div class="stretch-step"><span class="snum">2</span> Tends les bras le plus loin devant toi au sol</div>
+      <div class="stretch-step"><span class="snum">3</span> Front au sol, respire profondement 30 sec</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#fce4ec;">
+        <svg viewBox="0 0 80 80"><circle cx="40" cy="18" r="7" fill="none" stroke="#c62828" stroke-width="2.5"/><line x1="40" y1="25" x2="40" y2="52" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="34" x2="24" y2="38" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="24" y1="38" x2="18" y2="48" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="18" y1="48" x2="14" y2="55" stroke="#e53935" stroke-width="2" stroke-dasharray="2,2"/><line x1="40" y1="34" x2="56" y2="42" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="52" x2="32" y2="68" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="52" x2="48" y2="68" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Biceps</h4>
+        <div class="target">Avant des bras</div>
+        <span class="stretch-time-badge">30 sec par bras</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Bras tendu vers l'arriere, paume vers le haut</div>
+      <div class="stretch-step"><span class="snum">2</span> Autre main tire doucement les doigts vers le bas</div>
+      <div class="stretch-step"><span class="snum">3</span> Tiens 30 sec, change de bras</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ETIREMENTS BAS -->
+<div class="collapse-toggle" onclick="toggleCollapse('stretch-bas')">
+  <div class="toggle-left">
+    <div class="toggle-icon" style="background:#fce4ec;">🧘</div>
+    <div>
+      <div class="toggle-title">Etirements bas du corps</div>
+      <div class="toggle-sub">5 etirements x 30 sec = ~5 min</div>
+    </div>
+  </div>
+  <span class="chevron">▼</span>
+</div>
+<div class="collapse-content" id="stretch-bas">
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#e8f5e9;">
+        <svg viewBox="0 0 80 80"><circle cx="40" cy="14" r="7" fill="none" stroke="#2e7d32" stroke-width="2.5"/><line x1="40" y1="21" x2="40" y2="48" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="48" x2="40" y2="72" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="48" x2="50" y2="62" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="62" x2="46" y2="45" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="40" y1="34" x2="50" y2="40" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="40" x2="48" y2="46" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/><line x1="25" y1="73" x2="55" y2="73" stroke="#90a4ae" stroke-width="1"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Quadriceps (avant cuisse)</h4>
+        <div class="target">Devant de la cuisse</div>
+        <span class="stretch-time-badge">30 sec par jambe</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Debout, plie une jambe vers l'arriere</div>
+      <div class="stretch-step"><span class="snum">2</span> Attrape ton pied, tire le talon vers la fesse</div>
+      <div class="stretch-step"><span class="snum">3</span> Tiens 30 sec, change de jambe</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#e3f2fd;">
+        <svg viewBox="0 0 80 80"><circle cx="45" cy="22" r="7" fill="none" stroke="#1565c0" stroke-width="2.5"/><line x1="42" y1="28" x2="35" y2="48" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="38" y1="38" x2="30" y2="55" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="38" y1="38" x2="28" y2="50" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="35" y1="48" x2="30" y2="70" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="35" y1="48" x2="42" y2="70" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="71" x2="52" y2="71" stroke="#90a4ae" stroke-width="1"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Ischio-jambiers (arriere cuisse)</h4>
+        <div class="target">Arriere de la cuisse</div>
+        <span class="stretch-time-badge">30 sec par jambe</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Pied sur un banc ou marche basse, jambe tendue</div>
+      <div class="stretch-step"><span class="snum">2</span> Penche le buste vers l'avant depuis les hanches</div>
+      <div class="stretch-step"><span class="snum">3</span> Tiens 30 sec, change de jambe</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#f3e5f5;">
+        <svg viewBox="0 0 80 80"><circle cx="35" cy="18" r="6" fill="none" stroke="#7b1fa2" stroke-width="2.5"/><line x1="35" y1="24" x2="35" y2="42" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="35" y1="42" x2="25" y2="60" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="25" y1="60" x2="25" y2="70" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="35" y1="42" x2="50" y2="50" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="50" x2="42" y2="55" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="35" y1="32" x2="45" y2="44" stroke="#7b1fa2" stroke-width="2.5" stroke-linecap="round"/><line x1="18" y1="45" x2="55" y2="45" stroke="#90a4ae" stroke-width="2"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Fessiers</h4>
+        <div class="target">Fessier profond</div>
+        <span class="stretch-time-badge">30 sec par cote</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Assise, cheville droite sur le genou gauche</div>
+      <div class="stretch-step"><span class="snum">2</span> Penche-toi vers l'avant, dos droit</div>
+      <div class="stretch-step"><span class="snum">3</span> Tu sens l'etirement dans la fesse. 30 sec, change.</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#fff3e0;">
+        <svg viewBox="0 0 80 80"><circle cx="48" cy="15" r="6" fill="none" stroke="#e65100" stroke-width="2.5"/><line x1="48" y1="21" x2="45" y2="42" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="42" x2="38" y2="58" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="38" y1="58" x2="35" y2="68" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="42" x2="58" y2="55" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="58" y1="55" x2="62" y2="68" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="30" x2="28" y2="25" stroke="#e65100" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="10" x2="26" y2="55" stroke="#90a4ae" stroke-width="3"/><line x1="25" y1="69" x2="65" y2="69" stroke="#90a4ae" stroke-width="1"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Mollets</h4>
+        <div class="target">Arriere du bas de jambe</div>
+        <span class="stretch-time-badge">30 sec par jambe</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> Mains sur un mur, une jambe devant (pliee), une derriere (tendue)</div>
+      <div class="stretch-step"><span class="snum">2</span> Talon arriere bien au sol</div>
+      <div class="stretch-step"><span class="snum">3</span> Pousse le talon dans le sol. 30 sec, change.</div>
+    </div>
+  </div>
+
+  <div class="stretch-card">
+    <div class="stretch-header">
+      <div class="stretch-illust" style="background:#fce4ec;">
+        <svg viewBox="0 0 80 80"><circle cx="42" cy="14" r="6" fill="none" stroke="#c62828" stroke-width="2.5"/><line x1="42" y1="20" x2="42" y2="40" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="40" x2="32" y2="55" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="32" y1="55" x2="30" y2="68" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="40" x2="56" y2="55" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="56" y1="55" x2="62" y2="68" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="28" x2="35" y2="18" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="28" x2="50" y2="18" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/><line x1="22" y1="69" x2="68" y2="69" stroke="#90a4ae" stroke-width="1"/></svg>
+      </div>
+      <div class="stretch-info">
+        <h4>Psoas (hanche)</h4>
+        <div class="target">Devant de la hanche — souvent tendu si assise longtemps</div>
+        <span class="stretch-time-badge">30 sec par cote</span>
+      </div>
+    </div>
+    <div class="stretch-steps">
+      <div class="stretch-step"><span class="snum">1</span> En fente, genou arriere au sol</div>
+      <div class="stretch-step"><span class="snum">2</span> Pousse les hanches vers l'avant, buste droit</div>
+      <div class="stretch-step"><span class="snum">3</span> Tu sens l'etirement devant la hanche. 30 sec, change.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ======== 4 RULES ======== -->
+<div class="section-title">Les 4 regles</div>
+
+<div class="rule-card">
+  <div class="rule-number">1</div>
+  <div class="rule-content">
+    <strong>Echauffe-toi toujours</strong>
+    <span>5-10 min de cardio leger avant les machines. N'importe lequel.</span>
+  </div>
+</div>
+
+<div class="rule-card">
+  <div class="rule-number">2</div>
+  <div class="rule-content">
+    <strong>Alterne haut et bas</strong>
+    <span>Jamais le meme groupe 2 jours de suite. Abdos/core = tous les jours OK.</span>
+  </div>
+</div>
+
+<div class="rule-card">
+  <div class="rule-number">3</div>
+  <div class="rule-content">
+    <strong>Progresse petit a petit</strong>
+    <span>Si les dernieres reps sont faciles, monte d'un cran. C'est ca qui fait changer le corps.</span>
+  </div>
+</div>
+
+<div class="rule-card">
+  <div class="rule-number">4</div>
+  <div class="rule-content">
+    <strong>Etire-toi 5 min apres</strong>
+    <span>5 etirements x 30 sec de la zone travaillee. Voir section etirements ci-dessus.</span>
+  </div>
+</div>
+
+
+<!-- ======== BONUS ======== -->
+<div class="bonus-card">
+  <h3>Bonus bien-etre (quand tu veux)</h3>
+  <div class="bonus-item">Sauna apres une seance muscu (8-15 min)</div>
+  <div class="bonus-item">Hammam les jours tranquilles</div>
+  <div class="bonus-item">Douche froide rapide apres le sauna</div>
+  <div class="bonus-item">Collation proteinee dans l'heure qui suit</div>
+</div>
+
+<div class="footer">
+  Fiche sport complete — Sarah — Avril 2026<br>
+  Choisis, pousse, progresse.
+</div>
+
+<script>
+let selectedZone = null;
+let selectedMode = null;
+
+const machineData = {
+  haut: ['Chest Press', 'Overhead Press', 'High Pull', 'Low Pull', 'Core rotation'],
+  bas: ['Leg Press', 'Abducteurs', 'Adducteurs', 'Leg Curl', 'Leg Extension']
+};
+
+function selectZone(zone) {
+  selectedZone = zone;
+  document.getElementById('zone-haut').classList.toggle('selected', zone === 'haut');
+  document.getElementById('zone-bas').classList.toggle('selected', zone === 'bas');
+  updateResult();
+}
+
+function selectMode(mode) {
+  selectedMode = mode;
+  document.getElementById('mode-force').classList.toggle('selected', mode === 'force');
+  document.getElementById('mode-tonus').classList.toggle('selected', mode === 'tonus');
+  updateResult();
+}
+
+function updateResult() {
+  const card = document.getElementById('result');
+  if (!selectedZone || !selectedMode) { card.classList.remove('visible'); return; }
+  card.classList.add('visible');
+
+  const zoneLabel = selectedZone === 'haut' ? 'Haut du corps' : 'Bas du corps';
+  const modeLabel = selectedMode === 'force' ? 'Force' : 'Tonus';
+  const reps = selectedMode === 'force' ? '3 x 8 reps' : '3 x 15 reps';
+  const tip = selectedMode === 'force'
+    ? 'Charge lourde, mouvement lent et controle.'
+    : 'Charge legere, enchaine vite. Peu de repos = cardio gratuit !';
+  const rest = selectedMode === 'force'
+    ? 'Repos entre series : 60-90 sec | Entre machines : 30-60 sec'
+    : 'Repos entre series : 30-45 sec | Entre machines : enchaine !';
+
+  document.getElementById('result-title').textContent = zoneLabel + ' — ' + modeLabel;
+  document.getElementById('result-detail').textContent = tip;
+  document.getElementById('result-machines').textContent = machineData[selectedZone].join(' → ');
+  document.getElementById('result-badge').textContent = reps + '  ·  1 a 2 tours';
+  document.getElementById('result-rest').textContent = rest;
+}
+
+function toggleCollapse(id) {
+  const content = document.getElementById(id);
+  const toggle = content.previousElementSibling;
+  content.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<script>
+  function applyTwemoji() {
+    if (window.twemoji) {
+      twemoji.parse(document.body, {
+        folder: 'svg',
+        ext: '.svg',
+        base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/'
+      });
+    }
+  }
+  applyTwemoji();
+  // Re-apply after dynamic content updates (result card)
+  const originalUpdate = window.updateResult;
+  if (typeof originalUpdate === 'function') {
+    window.updateResult = function() {
+      originalUpdate.apply(this, arguments);
+      applyTwemoji();
+    };
+  }
+</script>
+
+</body>
+</html>
