@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f8f7f4">
+<title>Mon Programme Alimentaire</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f7f4;
+    color: #2d2d2d;
+    line-height: 1.6;
+    padding: 20px 16px;
+    max-width: 520px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: contain;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  img.emoji {
+    height: 1em;
+    width: 1em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+    display: inline-block;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 30px 0 20px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  /* TOGGLE */
+  .toggle-container {
+    display: flex;
+    background: #e8e6e1;
+    border-radius: 14px;
+    padding: 4px;
+    margin: 20px 0 28px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 11px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: #777;
+  }
+  .toggle-btn.active-rest {
+    background: #fff;
+    color: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .toggle-btn.active-sport {
+    background: #2d6a4f;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(45,106,79,0.25);
+  }
+
+  /* MEAL CARD */
+  .meal-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .meal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .meal-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .meal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .meal-subtitle {
+    font-size: 11px;
+    color: #999;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* COLOR THEMES */
+  .breakfast .meal-icon { background: #fff3e0; }
+  .snack-am .meal-icon { background: #fce4ec; }
+  .lunch .meal-icon { background: #e8f5e9; }
+  .snack-pm .meal-icon { background: #e3f2fd; }
+  .dinner .meal-icon { background: #ede7f6; }
+
+  /* OPTIONS TABLE */
+  .options-section {
+    margin-bottom: 14px;
+  }
+  .options-section:last-child {
+    margin-bottom: 0;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+
+  .option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #fafaf8;
+    border-radius: 10px;
+    margin-bottom: 4px;
+  }
+  .option-row:last-child { margin-bottom: 0; }
+
+  .option-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+  .option-qty {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2d6a4f;
+    white-space: nowrap;
+    background: #e8f5e9;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+  .option-qty.neutral {
+    color: #666;
+    background: #f0efeb;
+  }
+
+  .or-divider {
+    text-align: center;
+    font-size: 11px;
+    color: #bbb;
+    font-weight: 600;
+    padding: 2px 0;
+  }
+
+  /* PICK ONE BADGE */
+  .pick-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #f0efeb;
+    color: #888;
+    margin-bottom: 10px;
+  }
+
+  /* NOTE */
+  .note {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    margin-top: 8px;
+    padding-left: 4px;
+  }
+
+  /* OPTIONAL BADGE */
+  .optional-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #c9a227;
+    background: #fef9e7;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 6px;
+  }
+  .required-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #2d6a4f;
+    background: #e8f5e9;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 6px;
+  }
+
+  /* SPORT VARIANT HIGHLIGHT */
+  .sport-highlight {
+    display: none;
+  }
+  body.sport-mode .sport-highlight { display: block; }
+  body.sport-mode .rest-highlight { display: none; }
+  body:not(.sport-mode) .rest-highlight { display: block; }
+  body:not(.sport-mode) .sport-highlight { display: none; }
+
+  /* RULES CARD */
+  .rules-card {
+    background: linear-gradient(135deg, #fefefe 0%, #f9f8f5 100%);
+    border: 1.5px dashed #ddd;
+    border-radius: 16px;
+    padding: 22px;
+    margin: 24px 0 16px;
+  }
+  .rules-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .rule-item {
+    font-size: 13px;
+    color: #555;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+  }
+  .rule-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #2d6a4f;
+    font-weight: 700;
+  }
+
+  /* TIPS */
+  .tips-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .tips-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .tip-item {
+    font-size: 13px;
+    color: #555;
+    padding: 5px 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 24px 0;
+    font-size: 11px;
+    color: #bbb;
+  }
+
+  /* DARK MODE OPTIONAL */
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a1a; color: #e0e0e0; }
+    .meal-card, .tips-card { background: #242424; border-color: #333; }
+    .option-row { background: #2a2a2a; }
+    .option-name { color: #ddd; }
+    .toggle-container { background: #2a2a2a; }
+    .toggle-btn { color: #888; }
+    .toggle-btn.active-rest { background: #333; color: #fff; }
+    .header h1, .meal-title, .rules-card h3, .tips-card h3 { color: #f0f0f0; }
+    .rules-card { background: #222; border-color: #444; }
+    .option-qty { background: #1a3a2a; }
+    .option-qty.neutral { background: #333; color: #aaa; }
+    .pick-badge { background: #333; color: #aaa; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Mon Programme Alimentaire</h1>
+  <p>Choisis une option par catégorie — c'est tout !</p>
+</div>
+
+<!-- TOGGLE -->
+<div class="toggle-container">
+  <button class="toggle-btn active-rest" id="btn-rest" onclick="setMode('rest')">☁️ Jour Repos</button>
+  <button class="toggle-btn" id="btn-sport" onclick="setMode('sport')">💪 Jour Sport</button>
+</div>
+
+<!-- PETIT-DÉJ -->
+<div class="meal-card breakfast">
+  <div class="meal-header">
+    <div class="meal-icon">🍳</div>
+    <div>
+      <div class="meal-title">Petit-déjeuner</div>
+      <div class="meal-subtitle">Identique chaque jour</div>
+    </div>
+  </div>
+  <span class="pick-badge">Choisis 1 option</span>
+  <div class="options-section">
+    <div class="option-row">
+      <span class="option-name">2 œufs + café/thé</span>
+      <span class="option-qty neutral">+ 1 fruit si faim</span>
+    </div>
+    <div class="or-divider">ou</div>
+    <div class="option-row">
+      <span class="option-name">1 tranche pain + 1 œuf</span>
+      <span class="option-qty neutral">+ fromage 20g ou dinde</span>
+    </div>
+  </div>
+</div>
+
+<!-- COLLATION MATIN -->
+<div class="meal-card snack-am">
+  <div class="meal-header">
+    <div class="meal-icon">🫐</div>
+    <div>
+      <div class="meal-title">Collation matin</div>
+      <div class="meal-subtitle">Seulement si vraie faim</div>
+    </div>
+    <span class="optional-tag">Facultatif</span>
+  </div>
+  <span class="pick-badge">Choisis 1 option</span>
+  <div class="options-section">
+    <div class="option-row">
+      <span class="option-name">1 yaourt soja (myrtille)</span>
+      <span class="option-qty neutral">~100 g</span>
+    </div>
+    <div class="or-divider">ou</div>
+    <div class="option-row">
+      <span class="option-name">1 fruit frais</span>
+      <span class="option-qty neutral">~150 g</span>
+    </div>
+    <div class="or-divider">ou</div>
+    <div class="option-row">
+      <span class="option-name">1 compote</span>
+      <span class="option-qty neutral">~90 g</span>
+    </div>
+  </div>
+</div>
+
+<!-- DÉJEUNER -->
+<div class="meal-card lunch">
+  <div class="meal-header">
+    <div class="meal-icon">🥗</div>
+    <div>
+      <div class="meal-title">Déjeuner</div>
+      <div class="meal-subtitle">Protéine + légumes + glucides</div>
+    </div>
+  </div>
+
+  <div class="options-section">
+    <div class="section-label">Protéine — choisis 1</div>
+    <div class="option-row">
+      <span class="option-name">Steak 5%</span>
+      <span class="option-qty">100 g</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">Dinde</span>
+      <span class="option-qty">100 g</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">Poisson</span>
+      <span class="option-qty">130 g</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">Œufs</span>
+      <span class="option-qty">2 œufs</span>
+    </div>
+  </div>
+
+  <div class="options-section">
+    <div class="section-label">Légumes — obligatoire</div>
+    <div class="option-row">
+      <span class="option-name">Salade verte (romaine, batavia…)</span>
+      <span class="option-qty">100–150 g</span>
+    </div>
+    <div class="or-divider">ou</div>
+    <div class="option-row">
+      <span class="option-name">Salade 100 g + légumes cuits</span>
+      <span class="option-qty">100–150 g</span>
+    </div>
+    <div class="note">= 1 grosse assiette bien remplie</div>
+  </div>
+
+  <div class="options-section">
+    <div class="section-label">Glucides — choisis 1</div>
+    <div class="rest-highlight">
+      <div class="option-row">
+        <span class="option-name">Riz / pâtes / quinoa</span>
+        <span class="option-qty">80–100 g cuits</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Pommes de terre</span>
+        <span class="option-qty">150 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Légumineuses</span>
+        <span class="option-qty">120 g</span>
+      </div>
+      <div class="note">Tu peux aussi ne rien mettre si tu n'as pas faim.</div>
+    </div>
+    <div class="sport-highlight">
+      <div class="option-row">
+        <span class="option-name">Riz / pâtes / quinoa</span>
+        <span class="option-qty">100 g cuits</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Pommes de terre</span>
+        <span class="option-qty">180–200 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Légumineuses</span>
+        <span class="option-qty">150 g</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COLLATION APM -->
+<div class="meal-card snack-pm">
+  <div class="meal-header">
+    <div class="meal-icon">🍌</div>
+    <div>
+      <div class="meal-title">Collation après-midi</div>
+      <div class="rest-highlight">
+        <div class="meal-subtitle">Seulement si faim</div>
+      </div>
+      <div class="sport-highlight">
+        <div class="meal-subtitle">30–60 min avant la séance</div>
+      </div>
+    </div>
+    <div class="rest-highlight"><span class="optional-tag">Facultatif</span></div>
+    <div class="sport-highlight"><span class="required-tag">Obligatoire</span></div>
+  </div>
+  <span class="pick-badge">Choisis 1 option</span>
+  <div class="options-section">
+    <div class="rest-highlight">
+      <div class="option-row">
+        <span class="option-name">1 yaourt soja</span>
+        <span class="option-qty neutral">~100 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">1 fruit</span>
+        <span class="option-qty neutral">~150 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">1 compote</span>
+        <span class="option-qty neutral">~90 g</span>
+      </div>
+    </div>
+    <div class="sport-highlight">
+      <div class="option-row">
+        <span class="option-name">1 banane</span>
+        <span class="option-qty">~120 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">1 compote</span>
+        <span class="option-qty">~90 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">1 barre céréales bio</span>
+        <span class="option-qty">~30 g</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DÎNER -->
+<div class="meal-card dinner">
+  <div class="meal-header">
+    <div class="meal-icon">🍽️</div>
+    <div>
+      <div class="meal-title">Dîner</div>
+      <div class="meal-subtitle">Protéine + légumes ± glucides</div>
+    </div>
+  </div>
+
+  <div class="options-section">
+    <div class="section-label">Protéine — choisis 1</div>
+    <div class="option-row">
+      <span class="option-name">Steak 5%</span>
+      <span class="option-qty">100 g</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">Dinde</span>
+      <span class="option-qty">100 g</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">Poisson</span>
+      <span class="option-qty">130 g</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">Œufs</span>
+      <span class="option-qty">2 œufs</span>
+    </div>
+    <div class="option-row">
+      <span class="option-name">2 œufs + légumineuses</span>
+      <span class="option-qty">100 g légum.</span>
+    </div>
+    <div class="rest-highlight">
+      <div class="option-row">
+        <span class="option-name">3 œufs (si pas de glucides)</span>
+        <span class="option-qty">3 œufs</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="options-section">
+    <div class="section-label">Légumes — obligatoire</div>
+    <div class="option-row">
+      <span class="option-name">Légumes variés / salade</span>
+      <span class="option-qty">150–250 g</span>
+    </div>
+    <div class="note">Même principe qu'à midi : grosse assiette</div>
+  </div>
+
+  <div class="options-section">
+    <div class="section-label">Glucides — choisis 1</div>
+    <div class="rest-highlight">
+      <div class="option-row">
+        <span class="option-name">Riz / pâtes / quinoa</span>
+        <span class="option-qty neutral">max 80 g cuits</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Pommes de terre</span>
+        <span class="option-qty neutral">max 150 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Aucun glucide</span>
+        <span class="option-qty neutral">0 g</span>
+      </div>
+      <div class="note">Jour repos = tu peux zapper les glucides le soir.</div>
+    </div>
+    <div class="sport-highlight">
+      <div class="option-row">
+        <span class="option-name">Riz / pâtes / quinoa</span>
+        <span class="option-qty">120–150 g cuits</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Pommes de terre</span>
+        <span class="option-qty">200–250 g</span>
+      </div>
+      <div class="or-divider">ou</div>
+      <div class="option-row">
+        <span class="option-name">Légumineuses</span>
+        <span class="option-qty">150 g</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RÈGLES -->
+<div class="rules-card">
+  <h3>🧠 Mémo rapide</h3>
+  <div class="rule-item">1 seule source de protéine par repas</div>
+  <div class="rule-item">Les légumes sont toujours en grande quantité</div>
+  <div class="rule-item">Plus de glucides les jours de sport</div>
+  <div class="rule-item">Le poids peut stagner pendant la recomposition — c'est normal</div>
+</div>
+
+<!-- IDÉES PLAISIR -->
+<div class="tips-card">
+  <h3>💡 Idées plaisir (sans culpabiliser)</h3>
+  <div class="tip-item">Yaourt grec + cannelle + 50 g framboises ou myrtilles</div>
+  <div class="tip-item">+ 1 c. café graines de chia</div>
+  <div class="tip-item">+ 1 carré chocolat noir émietté ou 1 petite figue</div>
+  <div class="tip-item">+ 1 c. café miel ou vanille</div>
+</div>
+
+<!-- CONSERVATION SALADE -->
+<div class="tips-card">
+  <h3>🥬 Préparer sa salade pour la semaine</h3>
+  <div class="tip-item">Laver → bien sécher</div>
+  <div class="tip-item">Boîte hermétique + essuie-tout ou torchon propre</div>
+  <div class="tip-item">Ranger dans le bac à légumes</div>
+</div>
+
+<div class="footer">
+  Programme alimentaire — Sarah — Avril 2026
+</div>
+
+<script>
+function setMode(mode) {
+  const body = document.body;
+  const btnRest = document.getElementById('btn-rest');
+  const btnSport = document.getElementById('btn-sport');
+
+  if (mode === 'sport') {
+    body.classList.add('sport-mode');
+    btnSport.className = 'toggle-btn active-sport';
+    btnRest.className = 'toggle-btn';
+  } else {
+    body.classList.remove('sport-mode');
+    btnRest.className = 'toggle-btn active-rest';
+    btnSport.className = 'toggle-btn';
+  }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<script>
+  if (window.twemoji) {
+    twemoji.parse(document.body, {
+      folder: 'svg',
+      ext: '.svg',
+      base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/'
+    });
+  }
+</script>
+
+</body>
+</html>
